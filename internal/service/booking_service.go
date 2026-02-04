@@ -10,6 +10,8 @@ import (
 
 type BookingService interface {
 	CreateBooking(ctx context.Context, input *BookingDTO) error
+	GetByID(ctx context.Context, id int) (*model.Booking, error)
+	GetByUserID(ctx context.Context, userID int) ([]*model.Booking, error)
 }
 
 type bookingService struct {
@@ -21,12 +23,12 @@ func NewBookingService(bookingRepo repo.BookingRepo) BookingService {
 }
 
 type BookingDTO struct {
-	UserID     int
-	ResourceID int
+	UserID     int `json:"user_id"`
+	ResourceID int `json:"resource_id"`
 }
 
 func (b *bookingService) CreateBooking(ctx context.Context, input *BookingDTO) error {
-	if input.UserID <= 0 {
+	if input.UserID == 0 {
 		return errors.New("некорректный user_id")
 	}
 
@@ -49,4 +51,18 @@ func (b *bookingService) CreateBooking(ctx context.Context, input *BookingDTO) e
 	}
 
 	return nil
+}
+
+func (b *bookingService) GetByID(ctx context.Context, id int) (*model.Booking, error) {
+	if id <= 0 {
+		return nil, errors.New("Некорректный ID бронирования")
+	}
+	return b.bookingRepo.GetByID(ctx, id)
+}
+
+func (b *bookingService) GetByUserID(ctx context.Context, userID int) ([]*model.Booking, error) {
+	if userID <= 0 {
+		return nil, errors.New("Некорректный user_id")
+	}
+	return b.bookingRepo.GetByUserID(ctx, userID)
 }
