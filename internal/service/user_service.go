@@ -67,5 +67,6 @@ func (u *userService) Register(ctx context.Context, input *RegisterUserDTO) (*mo
 	if err != nil {
 		return nil, err
 	}
+
 	return createdUser, nil
 }
