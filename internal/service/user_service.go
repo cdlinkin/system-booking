@@ -63,5 +63,10 @@ func (u *userService) Register(ctx context.Context, input *RegisterUserDTO) (*mo
 		return nil, err
 	}
 
-	return user, nil
+	createdUser, err := u.userRepo.GetByEmail(ctx, input.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	return createdUser, nil
 }

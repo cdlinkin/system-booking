@@ -11,6 +11,7 @@ import (
 type UserRepo interface {
 	Create(ctx context.Context, user *model.User) error
 	GetByID(ctx context.Context, id int) (*model.User, error)
+	GetByEmail(ctx context.Context, email string) (*model.User, error)
 }
 
 type userRepo struct {
@@ -41,6 +42,21 @@ func (r *userRepo) GetByID(ctx context.Context, id int) (*model.User, error) {
 
 	user := &model.User{}
 	err := r.db.QueryRow(ctx, query, id).Scan(&user.ID, &user.Email, &user.Name, &user.Password, &user.CreatedAt)
+	if err != nil {
+		return nil, pgx.ErrNoRows
+	}
+
+	return user, nil
+}
+
+func (r *userRepo) GetByEmail(ctx context.Context, email string) (*model.User, error) {
+	query := `
+    SELECT id, email, name, password, created_at FROM users
+    WHERE email = $1
+    `
+
+	user := &model.User{}
+	err := r.db.QueryRow(ctx, query, email).Scan(&user.ID, &user.Email, &user.Name, &user.Password, &user.CreatedAt)
 	if err != nil {
 		return nil, pgx.ErrNoRows
 	}
